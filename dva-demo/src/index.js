@@ -40,7 +40,18 @@ let homeModel = {
                 });
             yield put({type: 'changeInfo', info: data.data});
         },
-    }
+    },
+    subscriptions: {
+        setup({history, dispatch}) {
+            console.log('setup被执行了');
+            return history.listen(({pathname}) => {
+                document.title = pathname
+            });
+        },
+        change() {
+            console.log('change被执行了');
+        },
+    },
 }
 let aboutModel = {
     namespace: 'about',
