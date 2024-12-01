@@ -1,6 +1,10 @@
 import dva, {connect} from 'dva';
+import {Router, Route} from 'dva/router'
+import createHistory from 'history/createBrowserHistory';
 
-const app = dva();
+const app = dva({
+    history: createHistory
+});
 
 let homeModel = {
     namespace: 'home',
@@ -56,17 +60,17 @@ let homeModel = {
 let aboutModel = {
     namespace: 'about',
     state: {
-        num: 0
+        count: 123
     },
     reducers: {
         add: (state, action) => {
             return {
-                num: state.num + action.num
+                count: state.count + action.count
             }
         },
         sub: (state, action) => {
             return {
-                num: state.num - action.num
+                count: state.count - action.count
             }
         }
     }
@@ -108,27 +112,56 @@ function Home(props) {
                 props.decrement()
             }}>-
             </button>
-            <hr/>
-            <div>dva异步处理</div>
-            <p>{props.info.name}</p>
-            <p>{props.info.role}</p>
-            <button onClick={() => {
-                props.getUserInfo()
-            }}>获取
-            </button>
         </div>
     )
 }
 
 const AdvHome = connect(mapStateToProps, mapDispatchToProps)(Home);
 
-function App() {
+function About(props) {
     return (
         <div>
-            <AdvHome/>
+            <p>{props.count}</p>
+            <button onClick={() => {
+                props.increment()
+            }}>+
+            </button>
+            <button onClick={() => {
+                props.decrement()
+            }}>-
+            </button>
         </div>
+    )
+}
+
+const mapStateToPropsAbout = (state) => {
+    return {
+        // 需要从传入的 state 的命名空间中拿到对应 Model 保存的数据
+        count: state.about.count,
+    }
+};
+const mapDispatchToPropsAbout = (dispatch) => {
+    return {
+        increment() {
+            dispatch({type: 'about/add', count: 2});
+        },
+        decrement() {
+            dispatch({type: 'about/sub', count: 2});
+        }
+    }
+};
+const AdvAbout = connect(mapStateToPropsAbout, mapDispatchToPropsAbout)(About);
+
+function App(props) {
+    return (
+        <Router history={props.history}>
+            <>
+                <Route path={'/home'} component={AdvHome}/>
+                <Route path={'/about'} component={AdvAbout}/>
+            </>
+        </Router>
     );
 }
 
-app.router(() => <App/>);
+app.router(({history}) => <App history={history}/>);
 app.start('#root');
