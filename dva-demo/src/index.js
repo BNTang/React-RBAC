@@ -3,7 +3,7 @@ import {Router, Route} from 'dva/router'
 import createHistory from 'history/createBrowserHistory';
 
 const app = dva({
-    history: createHistory
+    history: createHistory()
 });
 
 let homeModel = {
