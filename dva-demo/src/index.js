@@ -1,5 +1,5 @@
 import dva, {connect} from 'dva';
-import {Router, Route} from 'dva/router'
+import {Router, Route, Link, routerRedux} from 'dva/router'
 import createHistory from 'history/createBrowserHistory';
 
 const app = dva({
@@ -96,7 +96,10 @@ const mapDispatchToProps = (dispatch) => {
         },
         getUserInfo() {
             dispatch({type: 'home/asyncUserInfo'});
-        }
+        },
+        goToAbout() {
+            dispatch(routerRedux.push('/about'));
+        },
     }
 };
 
@@ -111,6 +114,12 @@ function Home(props) {
             <button onClick={() => {
                 props.decrement()
             }}>-
+            </button>
+            <hr/>
+            <button onClick={() => {
+                props.goToAbout()
+            }}>
+                跳转到 About
             </button>
         </div>
     )
@@ -130,6 +139,12 @@ function About(props) {
                 props.decrement()
             }}>-
             </button>
+            <hr/>
+            <button onClick={() => {
+                props.goToHome()
+            }}>
+                返回上一页
+            </button>
         </div>
     )
 }
@@ -147,7 +162,10 @@ const mapDispatchToPropsAbout = (dispatch) => {
         },
         decrement() {
             dispatch({type: 'about/sub', count: 2});
-        }
+        },
+        goToHome() {
+            dispatch(routerRedux.goBack());
+        },
     }
 };
 const AdvAbout = connect(mapStateToPropsAbout, mapDispatchToPropsAbout)(About);
@@ -156,6 +174,8 @@ function App(props) {
     return (
         <Router history={props.history}>
             <>
+                <Link to="/home">Home</Link>
+                <Link to="/about">About</Link>
                 <Route path={'/home'} component={AdvHome}/>
                 <Route path={'/about'} component={AdvAbout}/>
             </>
