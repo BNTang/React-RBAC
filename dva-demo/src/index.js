@@ -3,7 +3,15 @@ import {Router, Route, Link, routerRedux} from 'dva/router'
 import createHistory from 'history/createBrowserHistory';
 
 const app = dva({
-    history: createHistory()
+    history: createHistory(),
+    initialState: {
+        home: {
+            count: 777,
+            info: {
+                name: 'NEO-IT666',
+            }
+        },
+    }
 });
 
 let homeModel = {
@@ -107,6 +115,7 @@ function Home(props) {
     return (
         <div>
             <p>{props.count}</p>
+            <p>{props.info.name}</p>
             <button onClick={() => {
                 props.increment()
             }}>+
