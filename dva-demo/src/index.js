@@ -1,6 +1,7 @@
 import dva, {connect} from 'dva';
 import {Router, Route, Link, routerRedux} from 'dva/router'
 import createHistory from 'history/createBrowserHistory';
+import createLogger from 'redux-logger';
 
 const app = dva({
     history: createHistory(),
@@ -8,10 +9,15 @@ const app = dva({
         home: {
             count: 777,
             info: {
-                name: 'NEO-IT666',
+                name: 'NEO-IT666'
             }
         },
-    }
+    },
+    onError: (error, dispatch) => {
+        console.error('全局错误：', error);
+        alert('全局错误：' + error.message);
+    },
+    onAction: createLogger
 });
 
 let homeModel = {
@@ -42,15 +48,16 @@ let homeModel = {
     effects: {
         // {type: 'asyncUserInfo', info: data}
         * asyncUserInfo(state, {put}) {
-            // 获取网络数据
-            const data = yield fetch('http://localhost:4000/api/data')
-                .then((response) => {
-                    return response.json();
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-            yield put({type: 'changeInfo', info: data.data});
+            try {
+                const response = yield fetch('http://localhost:4000/api/data');
+                const data = yield response.json();
+                yield put({type: 'changeInfo', info: data.data});
+            } catch (error) {
+                console.log('effects error', error);
+                // 如果需要在这里就处理完错误，阻止 onError 触发
+                // 可以返回一个默认值
+                yield put({type: 'changeInfo', info: {name: '获取数据失败'}});
+            }
         },
     },
     subscriptions: {
@@ -60,8 +67,9 @@ let homeModel = {
                 document.title = pathname
             });
         },
-        change() {
+        change({history, dispatch}, done) {
             console.log('change被执行了');
+            // done(new Error('自定义错误'));
         },
     },
 }
@@ -129,6 +137,12 @@ function Home(props) {
                 props.goToAbout()
             }}>
                 跳转到 About
+            </button>
+            <hr/>
+            <button onClick={() => {
+                props.getUserInfo()
+            }}>
+                获取
             </button>
         </div>
     )
