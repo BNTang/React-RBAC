@@ -29,11 +29,13 @@ let homeModel = {
     reducers: {
         add: (state, action) => {
             return {
+                ...state,
                 count: state.count + action.count
             }
         },
         sub: (state, action) => {
             return {
+                ...state,
                 count: state.count - action.count
             }
         },
